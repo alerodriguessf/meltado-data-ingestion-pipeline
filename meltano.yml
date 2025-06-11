@@ -23,7 +23,7 @@ plugins:
       variant: widen
       pip_url: tap-rest-api-msdk
       config:
-        api_url: http://18.209.218.63:8080
+        api_url: ${API_HOST}
         auth_method: "basic"
         username: ${API_USER}
         password: ${API_PASSWORD}
@@ -38,9 +38,17 @@ plugins:
             path: /PurchaseOrderDetail
 
   loaders:
-    - name: target-parquet
+    - name: target-parquet-sqlserver
+      inherit_from: target-parquet
       variant: automattic
       config:
-        destination_path: output/data/parquet
+        destination_path: output/sqlserver
+        file_format: parquet
         data_flattening: 0
         encoding_errors: replace
+
+    - name: target-parquet-api
+      inherit_from: target-parquet
+      variant: automattic
+      config:
+        destination_path: output/api
