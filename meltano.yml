@@ -27,15 +27,56 @@ plugins:
         auth_method: "basic"
         username: ${API_USER}
         password: ${API_PASSWORD}
+        pagination:
+          pagination_type: offset
+          page_param: offset
+          page_size_param: limit
+          start_page: 0
+          limit: 100
         streams:
           - name: SalesOrderHeader
             path: /SalesOrderHeader
+            key_properties: ["SalesOrderID"]
+            records_path: data
+            schema:
+              type: object
+              properties:
+                SalesOrderID:
+                  type: integer
+
           - name: SalesOrderDetail
             path: /SalesOrderDetail
+            key_properties: ["SalesOrderID", "SalesOrderDetailID"]
+            records_path: data
+            schema:
+              type: object
+              properties:
+                SalesOrderID:
+                  type: integer
+                SalesOrderDetailID:
+                  type: integer
+
           - name: PurchaseOrderHeader
             path: /PurchaseOrderHeader
+            key_properties: ["PurchaseOrderID"]
+            records_path: data
+            schema:
+              type: object
+              properties:
+                PurchaseOrderID:
+                  type: integer
+
           - name: PurchaseOrderDetail
             path: /PurchaseOrderDetail
+            key_properties: ["PurchaseOrderID", "PurchaseOrderDetailID"]
+            records_path: data
+            schema:
+              type: object
+              properties:
+                PurchaseOrderID:
+                  type: integer
+                PurchaseOrderDetailID:
+                  type: integer
 
   loaders:
     - name: target-parquet-sqlserver
@@ -50,5 +91,8 @@ plugins:
     - name: target-parquet-api
       inherit_from: target-parquet
       variant: automattic
+      pip_url: git+https://github.com/automattic/target-parquet.git
       config:
-        destination_path: output/api
+        destination_path: output/api2
+        file_format: parquet
+        encoding_errors: replace
