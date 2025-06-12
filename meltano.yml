@@ -31,52 +31,103 @@ plugins:
           pagination_type: offset
           page_param: offset
           page_size_param: limit
-          start_page: 0
-          limit: 100
+          start_page: 0 
+          limit: 100 
+        total_jsonpath: $.total 
+        offset_jsonpath: $.offset
+        
         streams:
           - name: SalesOrderHeader
             path: /SalesOrderHeader
             key_properties: ["SalesOrderID"]
-            records_path: data
+            records_path: $.data[*] 
             schema:
               type: object
               properties:
-                SalesOrderID:
-                  type: integer
+                SalesOrderID: {type: ["integer", "null"]}
+                RevisionNumber: {type: ["integer", "null"]}
+                OrderDate: {type: ["string", "null"]}
+                DueDate: {type: ["string", "null"]}
+                ShipDate: {type: ["string", "null"]}
+                Status: {type: ["integer", "null"]}
+                OnlineOrderFlag: {type: ["boolean", "null"]}
+                SalesOrderNumber: {type: ["string", "null"]}
+                CustomerID: {type: ["integer", "null"]}
+                BillToAddressID: {type: ["integer", "null"]}
+                ShipToAddressID: {type: ["integer", "null"]}
+                ShipMethodID: {type: ["integer", "null"]}
+                SubTotal: {type: ["number", "null"]}
+                TaxAmt: {type: ["number", "null"]}
+                Freight: {type: ["number", "null"]}
+                TotalDue: {type: ["number", "null"]}
+                rowguid: {type: ["string", "null"]}
+                ModifiedDate: {type: ["string", "null"]}
+                PurchaseOrderNumber: {type: ["string", "null"]}
+                AccountNumber: {type: ["string", "null"]}
+                SalesPersonID: {type: ["integer", "null"]}
+                TerritoryID: {type: ["integer", "null"]}
+                CreditCardID: {type: ["integer", "null"]}
+                CreditCardApprovalCode: {type: ["string", "null"]}
+                CurrencyRateID: {type: ["integer", "null"]}
+                Comment: {type: ["string", "null"]}
 
           - name: SalesOrderDetail
             path: /SalesOrderDetail
             key_properties: ["SalesOrderID", "SalesOrderDetailID"]
-            records_path: data
+            records_path: $.data[*]
             schema:
               type: object
               properties:
-                SalesOrderID:
-                  type: integer
-                SalesOrderDetailID:
-                  type: integer
+                SalesOrderID: {type: ["integer", "null"]}
+                SalesOrderDetailID: {type: ["integer", "null"]}
+                OrderQty: {type: ["integer", "null"]}
+                ProductID: {type: ["integer", "null"]}
+                UnitPrice: {type: ["number", "null"]}
+                UnitPriceDiscount: {type: ["number", "null"]}
+                LineTotal: {type: ["number", "null"]}
+                rowguid: {type: ["string", "null"]}
+                ModifiedDate: {type: ["string", "null"]}
+                CarrierTrackingNumber: {type: ["string", "null"]} 
 
           - name: PurchaseOrderHeader
             path: /PurchaseOrderHeader
             key_properties: ["PurchaseOrderID"]
-            records_path: data
+            records_path: $.data[*]
             schema:
               type: object
               properties:
-                PurchaseOrderID:
-                  type: integer
+                PurchaseOrderID: {type: ["integer", "null"]}
+                RevisionNumber: {type: ["integer", "null"]}
+                Status: {type: ["integer", "null"]}
+                EmployeeID: {type: ["integer", "null"]}
+                VendorID: {type: ["integer", "null"]}
+                ShipMethodID: {type: ["integer", "null"]}
+                OrderDate: {type: ["string", "null"]}
+                ShipDate: {type: ["string", "null"]}
+                SubTotal: {type: ["number", "null"]}
+                TaxAmt: {type: ["number", "null"]}
+                Freight: {type: ["number", "null"]}
+                TotalDue: {type: ["number", "null"]}
+                ModifiedDate: {type: ["string", "null"]}
 
           - name: PurchaseOrderDetail
             path: /PurchaseOrderDetail
             key_properties: ["PurchaseOrderID", "PurchaseOrderDetailID"]
-            records_path: data
+            records_path: $.data[*]
             schema:
               type: object
               properties:
-                PurchaseOrderID:
-                  type: integer
-                PurchaseOrderDetailID:
-                  type: integer
+                PurchaseOrderID: {type: ["integer", "null"]}
+                PurchaseOrderDetailID: {type: ["integer", "null"]}
+                DueDate: {type: ["string", "null"]}
+                OrderQty: {type: ["integer", "null"]}
+                ProductID: {type: ["integer", "null"]}
+                UnitPrice: {type: ["number", "null"]}
+                LineTotal: {type: ["number", "null"]}
+                ReceivedQty: {type: ["number", "null"]}
+                RejectedQty: {type: ["number", "null"]}
+                StockedQty: {type: ["number", "null"]}
+                ModifiedDate: {type: ["string", "null"]}
 
   loaders:
     - name: target-parquet-sqlserver
@@ -93,6 +144,6 @@ plugins:
       variant: automattic
       pip_url: git+https://github.com/automattic/target-parquet.git
       config:
-        destination_path: output/api2
+        destination_path: output/api
         file_format: parquet
         encoding_errors: replace
