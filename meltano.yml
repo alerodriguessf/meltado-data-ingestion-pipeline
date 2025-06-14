@@ -130,11 +130,16 @@ plugins:
                 ModifiedDate: {type: ["string", "null"]}
 
   loaders:
+    - name: target-parquet
+      variant: automattic
+      pip_url: git+https://github.com/automattic/target-parquet.git
+      
     - name: target-parquet-sqlserver
       inherit_from: target-parquet
       variant: automattic
+      pip_url: git+https://github.com/automattic/target-parquet.git
       config:
-        destination_path: output/sqlserver
+        destination_path: output/docker_elt/sqlserver
         file_format: parquet
         data_flattening: 0
         encoding_errors: replace
@@ -144,6 +149,6 @@ plugins:
       variant: automattic
       pip_url: git+https://github.com/automattic/target-parquet.git
       config:
-        destination_path: output/api
+        destination_path: output/docker_elt/api
         file_format: parquet
         encoding_errors: replace

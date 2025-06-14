@@ -1,27 +1,32 @@
-FROM python:3.11-slim-buster
+# Usa a imagem oficial do Meltano com Python 3.11
+FROM meltano/meltano:latest-python3.11
 
-WORKDIR /app
+# Instala pacotes necessários: curl, unzip (para CLI Databricks)
+RUN apt-get update && apt-get install -y curl unzip && \
+    rm -rf /var/lib/apt/lists/*
 
-# Instala dependências de sistema, incluindo ODBC e o driver SQL Server
-RUN apt-get update && \
-    apt-get install -y gnupg2 curl ca-certificates apt-transport-https software-properties-common && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev gcc g++ git && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Instala a Databricks CLI (v2)
+RUN curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
-# Copia o arquivo requirements
-COPY requirements.txt .
+# Define o diretório de trabalho no container
+WORKDIR /projects/adventure_works_ingestion
 
-# Instala dependências Python
+# Copia os arquivos necessários para dentro da imagem
+COPY .env .env
+COPY meltano.yml meltano.yml
+COPY requirements.txt requirements.txt
+COPY entrypoint.sh entrypoint.sh
+
+# Dá permissão de execução ao script
+RUN chmod +x entrypoint.sh
+
+# Instala dependências Python do projeto (caso precise)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt || true
 
-# Copia o restante do código
-COPY . .
+# Resolve dependências e instala os plugins do meltano
+RUN meltano lock --update --all && \
+    meltano install
 
-# Instala os plugins Meltano
-RUN meltano install
-
-CMD ["bash"]
+# Define o script principal que será executado
+ENTRYPOINT ["./entrypoint.sh"]
