@@ -165,13 +165,9 @@ databricks fs cp output/docker_elt/api/ dbfs:/<caminho>/api/ --recursive --overw
 
 Em caso de dúvidas ou sugestões, entre em contato:
 
-**Nome da equipe:*Alexandre R.Silva Filho*
-**Email:** \[[email@email.com](mailto:alexandre.filho@indicium.tech)]
+**Nome da equipe**:*Alexandre R.Silva Filho*
+**Email:** **alexandre.filho@indicium.tech** 
 
 
 ```
 
----
-
-Se quiser, posso gerar uma **versão com TOC (table of contents)** clicável ou uma **versão multilíngue (ex: inglês/português)**. Deseja isso?
-```
