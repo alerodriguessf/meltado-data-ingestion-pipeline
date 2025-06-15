@@ -165,12 +165,9 @@ databricks fs cp output/docker_elt/api/ dbfs:/<caminho>/api/ --recursive --overw
 
 Em caso de dúvidas ou sugestões, entre em contato:
 
-**Nome da equipe:** \[Seu Nome ou Nomes dos Integrantes]
-**Email:** \[[email@email.com](mailto:email@email.com)]
+**Nome da equipe:*Alexandre R.Silva Filho*
+**Email:** \[[email@email.com](mailto:alexandre.filho@indicium.tech)]
 
----
-
-> Projeto desenvolvido para o Checkpoint 2 - Lighthouse da Indicium 🚦
 
 ```
 
