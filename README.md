@@ -167,7 +167,3 @@ Em caso de dúvidas ou sugestões, entre em contato:
 
 **Nome da equipe**:*Alexandre R.Silva Filho*
 **Email:** **alexandre.filho@indicium.tech** 
-
-
-```
-
