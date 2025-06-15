@@ -11,18 +11,17 @@ O objetivo principal é extrair dados de duas fontes distintas — um banco de d
 A solução foi projetada com foco em **modularidade**, **reutilização**, **clareza** e **manutenibilidade do código**, seguindo princípios sólidos de engenharia de dados, como:
 
 * Gerenciamento seguro de credenciais
-* Tratamento abrangente de erros
 * Garantia de idempotência na execução da pipeline
 
 ---
 
 ## 2. Arquitetura da Solução
 
-A orquestração da pipeline é feita com **Meltano**, uma plataforma ELT open-source, conteinerizada com **Docker** para garantir consistência de ambiente. Os dados extraídos são temporariamente salvos em arquivos `.parquet` antes de serem carregados no **Databricks** como tabelas **Delta Lake**.
+A orquestração da pipeline é feita com **Meltano**, uma plataforma ELT open-source, conteinerizada com **Docker** para garantir consistência de ambiente. Os dados extraídos são temporariamente salvos em arquivos `.parquet` antes de serem carregados no **Databricks**.
 
 ### 2.1 Componentes Técnicos
 
-#### 🔧 Meltano (Orquestrador ELT):
+#### 🔧 Meltano (Extração de dados):
 
 * **tap-mssql**: Extrator que se conecta ao banco MSSQL
 * **tap-rest-api-msdk**: Extrator para API REST, com paginação por offset e limit
@@ -75,7 +74,7 @@ git clone <https://github.com/alerodriguessf/lighthouse_desafio02_alexandrersf>
 
 ### 4.2 Variáveis de Ambiente
 
-Crie um arquivo `.env` com base suas credenciais
+Crie um arquivo `.env` com base nas suas credenciais
 
 ```bash
 # MSSQL
@@ -197,4 +196,5 @@ scripts_aux/
 ## 9. Contato
 
 **Nome da equipe:** Alexandre R.Silva Filho
+
 **Email:** [alexandre.filho@indicium.tech](mailto:alexandre.filho@indicium.tech)
