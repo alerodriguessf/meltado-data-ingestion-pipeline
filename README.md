@@ -1,15 +1,17 @@
 
+
+```markdown
 # Pipeline de Ingestão de Dados - Lighthouse Checkpoint 2
 
 ## 1. Visão Geral do Projeto
 
-[cite_start]Este projeto implementa uma pipeline de ingestão de dados robusta e eficiente, desenvolvida como parte do desafio Lighthouse Checkpoint 2 da Indicium[cite: 1]. [cite_start]O objetivo principal é a extração de dados de duas fontes distintas – um banco de dados relacional e uma API [cite: 2] [cite_start]– e o carregamento desses dados em um ambiente Databricks Lakehouse [cite: 2][cite_start], utilizando o formato Delta Lake para otimização, escalabilidade e conformidade com as melhores práticas de dados[cite: 9].
+Este projeto implementa uma pipeline de ingestão de dados robusta e eficiente, desenvolvida como parte do desafio Lighthouse Checkpoint 2 da Indicium. [cite_start]O objetivo principal é a extração de dados de duas fontes distintas – um banco de dados relacional e uma API – e o carregamento desses dados em um ambiente Databricks Lakehouse, utilizando o formato Delta Lake para otimização, escalabilidade e conformidade com as melhores práticas de dados[cite: 1, 2].
 
-[cite_start]A solução foi meticulosamente projetada com foco em modularidade, reusabilidade, clareza e manutenibilidade do código [cite: 10][cite_start], aderindo rigorosamente às boas práticas de engenharia de dados[cite: 10]. [cite_start]Isso inclui o gerenciamento seguro de credenciais [cite: 13, 31][cite_start], tratamento abrangente de erros [cite: 11] [cite_start]e a garantia de idempotência da pipeline[cite: 11, 47].
+[cite_start]A solução foi meticulosamente projetada com foco em modularidade, reusabilidade, clareza e manutenibilidade do código, aderindo rigorosamente às boas práticas de engenharia de dados[cite: 10]. [cite_start]Isso inclui o gerenciamento seguro de credenciais [cite: 13, 31][cite_start], tratamento abrangente de erros [cite: 11] [cite_start]e a garantia de idempotência da pipeline[cite: 11, 47].
 
 ## 2. Arquitetura da Solução
 
-[cite_start]A pipeline de ingestão de dados é orquestrada utilizando Meltano, uma plataforma ELT (Extract, Load, Transform) de código aberto, e conteinerizada com Docker para garantir um ambiente de execução consistente e isolado[cite: 49]. [cite_start]Os dados extraídos são temporariamente staged como arquivos Parquet antes de serem carregados no Databricks e persistidos como tabelas Delta Lake[cite: 9].
+[cite_start]A pipeline de ingestão de dados é orquestrada utilizando Meltano, uma plataforma ELT (Extract, Load, Transform) de código aberto, e conteinerizada com Docker para garantir um ambiente de execução consistente e isolado[cite: 49]. [cite_start]Os dados extraídos são temporariamente staged como arquivos Parquet antes de serem carregados no Databricks e persistidos como tabelas Delta Lake[cite: 9, 41].
 
 ```mermaid
 graph TD
@@ -27,27 +29,27 @@ graph TD
 **2.1. Componentes Técnicos Detalhados:**
 
 * **Meltano (Core ELT Orchestrator):**
-    * [cite_start]**`tap-mssql` (Extractor):** Plugin Meltano responsável por conectar-se ao banco de dados MSSQL[cite: 40, 67, 68]. [cite_start]Utiliza conexões seguras e eficientes para extrair dados[cite: 7].
-    * [cite_start]**`tap-rest-api-msdk` (Extractor):** Plugin Meltano baseado no SDK de Extratores do Singer (MSDK), configurado para interagir com a API REST[cite: 40, 67]. Este `tap` está configurado para extrair os seguintes *streams* com paginação via *offset* e *limit*:
+    * [cite_start]**`tap-mssql` (Extractor):** Plugin Meltano responsável por conectar-se ao banco de dados MSSQL[cite: 40]. [cite_start]Utiliza conexões seguras e eficientes para extrair dados[cite: 7].
+    * [cite_start]**`tap-rest-api-msdk` (Extractor):** Plugin Meltano baseado no SDK de Extratores do Singer (MSDK), configurado para interagir com a API REST[cite: 40]. Este `tap` está configurado para extrair os seguintes *streams* com paginação via *offset* e *limit*:
         * `SalesOrderHeader`
         * `SalesOrderDetail`
         * `PurchaseOrderHeader`
         * `PurchaseOrderDetail`
         [cite_start]Definições de esquema (schema) para cada stream são explicitamente declaradas em `meltano.yml` para garantir a integridade dos dados[cite: 42].
-    * **`target-parquet` (Loaders):** Plugins de carregamento do Meltano que convertem os dados extraídos (em formato Singer Spec JSON) para arquivos Parquet, um formato colunar otimizado para análise de big data. Duas instâncias são configuradas para organizar os dados por fonte:
+    * [cite_start]**`target-parquet` (Loaders):** Plugins de carregamento do Meltano que convertem os dados extraídos (em formato Singer Spec JSON) para arquivos Parquet, um formato colunar otimizado para análise de big data[cite: 9]. Duas instâncias são configuradas para organizar os dados por fonte:
         * `target-parquet-sqlserver`: Para dados provenientes do MSSQL.
         * `target-parquet-api`: Para dados provenientes da API.
         Os arquivos Parquet são staged em caminhos distintos dentro do contêiner (`output/docker_elt/sqlserver` e `output/docker_elt/api`).
 
 * [cite_start]**Docker:** Utilizado para conteinerizar a aplicação Meltano e todas as suas dependências (Python, pacotes do sistema, Databricks CLI)[cite: 49]. Isso garante um ambiente de execução isolado, portátil e replicável em qualquer máquina com Docker. O `Dockerfile` detalha todas as etapas de build, desde a imagem base (`meltano/meltano:latest-python3.11`) até a instalação das dependências e configuração do ponto de entrada.
 
-* [cite_start]**Databricks CLI (v2):** Instalado e configurado dentro do contêiner Docker[cite: 6]. Após a geração dos arquivos Parquet, o Databricks CLI será utilizado para fazer o upload desses arquivos para o Databricks Lakehouse (diretamente no DBFS ou em um local gerenciado pelo Unity Catalog, dependendo da configuração do ambiente Databricks). [cite_start]Isso permite a criação ou atualização de tabelas Delta Lake no destino final[cite: 41].
+* **Databricks CLI (v2):** Instalado e configurado dentro do contêiner Docker. Após a geração dos arquivos Parquet, o Databricks CLI será utilizado para fazer o upload desses arquivos para o Databricks Lakehouse (diretamente no DBFS ou em um local gerenciado pelo Unity Catalog, dependendo da configuração do ambiente Databricks). [cite_start]Isso permite a criação ou atualização de tabelas Delta Lake no destino final[cite: 41].
 
-* [cite_start]**Databricks Lakehouse (Delta Lake):** O destino final dos dados[cite: 2, 73]. [cite_start]Os dados são armazenados no formato Delta Lake[cite: 9], que oferece:
+* [cite_start]**Databricks Lakehouse (Delta Lake):** O destino final dos dados[cite: 2]. Os dados são armazenados no formato Delta Lake, que oferece:
     * **ACID Transactions:** Garantia de consistência e durabilidade dos dados.
     * **Schema Enforcement & Evolution:** Prevenção de corrupção de dados e flexibilidade para adaptações futuras.
-    * [cite_start]**Performance Otimizada:** Formato colunar e otimizações para cargas de trabalho analíticas[cite: 43].
-    * [cite_start]**Escalabilidade:** Capacidade de lidar com volumes crescentes de dados[cite: 12, 46].
+    * **Performance Otimizada:** Formato colunar e otimizações para cargas de trabalho analíticas.
+    * **Escalabilidade:** Capacidade de lidar com volumes crescentes de dados.
 
 ## 3. Requisitos e Pré-requisitos
 
@@ -74,7 +76,7 @@ Primeiro, clone este repositório para sua máquina local:
 git clone <URL_DO_SEU_REPOSITORIO_PRIVADO>
 cd lighthouse-ingestion-pipeline # (ou o nome da pasta do seu projeto)
 ```
-[cite_start]**Importante:** Conceda acesso ao seu avaliador ao repositório Git privado no GitHub/Bitbucket antes do prazo final[cite: 18, 57, 85]. [cite_start]O acesso também deverá ser concedido a membros do L&D, caso seja requisitado[cite: 18].
+[cite_start]**Importante:** Conceda acesso ao seu avaliador ao repositório Git privado no GitHub/Bitbucket antes do prazo final[cite: 18, 85]. [cite_start]O acesso também deverá ser concedido a membros do L&D, caso seja requisitado[cite: 18].
 
 ### 4.2. Gerenciamento de Variáveis de Ambiente
 
@@ -117,10 +119,10 @@ cd lighthouse-ingestion-pipeline # (ou o nome da pasta do seu projeto)
 ├── .env.save                           # Template seguro para as variáveis de ambiente (NUNCA faça commit do .env)
 ├── .gitignore                          # Define arquivos/padrões a serem ignorados pelo Git
 ├── Dockerfile                          # Define os passos para construir a imagem Docker do projeto
-[cite_start]├── README.md                           # Este documento [cite: 20, 55]
+├── README.md                           # Este documento
 ├── entrypoint.sh                       # Script de entrada principal do contêiner Docker, orquestra a pipeline
 ├── meltano.yml                         # Arquivo de configuração principal do Meltano, definindo taps, targets e streams
-[cite_start]└── requirements.txt                    # Dependências Python adicionais do projeto [cite: 22]
+└── requirements.txt                    # Dependências Python adicionais do projeto
 ```
 
 
@@ -174,13 +176,60 @@ O script `entrypoint.sh` (verifique seu conteúdo para a implementação exata) 
 1.  Acesse seu workspace Databricks.
 2.  Navegue até o local onde os arquivos Parquet foram carregados (DBFS ou Unity Catalog).
 3.  Verifique a existência dos arquivos Parquet para as tabelas `SalesOrderHeader`, `SalesOrderDetail`, `PurchaseOrderHeader`, e `PurchaseOrderDetail` (da API) e as tabelas extraídas do MSSQL.
-4.  [cite_start]Crie ou confirme a existência das tabelas Delta Lake correspondentes e execute consultas para verificar a integridade e completude dos dados[cite: 41].
+4.  Crie ou confirme a existência das tabelas Delta Lake correspondentes e execute consultas para verificar a integridade e completude dos dados.
 
+## 6. Boas Práticas e Considerações de Engenharia
+
+Este projeto incorpora diversas boas práticas de engenharia de dados:
+
+* [cite_start]**Modularização e Reusabilidade:** A configuração via `meltano.yml` e o uso de plugins promovem a modularização do código e a reusabilidade dos componentes de extração e carregamento[cite: 10].
+* [cite_start]**Idempotência:** A pipeline é projetada para ser idempotente[cite: 11, 47]. Re-execuções da pipeline com o mesmo estado de origem não devem resultar em duplicação de dados ou inconsistências. Isso é geralmente alcançado através de lógicas de UPSERT ou recriação de tabelas, dependendo da estratégia de carga adotada no Databricks.
+* [cite_start]**Tratamento de Erros:** Mecanismos básicos para identificação e tratamento de erros estão implementados (implicitamente via Meltano e via controle no `entrypoint.sh`)[cite: 11, 47]. Acompanhamento de logs é essencial para depuração.
+* **Otimização e Escalabilidade:**
+    * [cite_start]O uso de Parquet como formato intermediário e Delta Lake como formato final contribui para a performance e escalabilidade, dada a natureza colunar e otimizações de armazenamento[cite: 43, 46].
+    * A configuração de paginação na `tap-rest-api-msdk` (offset/limit) ajuda a gerenciar grandes volumes de dados de API de forma eficiente.
+    * [cite_start]O design considera futuras adaptações e volumes crescentes de dados[cite: 12, 46].
+* [cite_start]**Segurança:** Gerenciamento seguro de variáveis de ambiente é priorizado para acesso a dados sensíveis, evitando a exposição de credenciais[cite: 13, 31, 52].
+* [cite_start]**Controle de Versão com Git:** Utilização eficaz do Git para versionamento do código, com commits claros e organização de branches[cite: 13, 50].
+
+## 7. Critérios de Avaliação Atendidos (Referência do Desafio)
+
+[cite_start]Este projeto foi desenvolvido para atender aos seguintes critérios de avaliação do Checkpoint 2[cite: 39, 81]:
+
+* **Funcionamento e Eficiência do Pipeline de Ingestão de Dados:**
+    * [cite_start]Conexão e extração correta dos dados do Banco de Dados e da API[cite: 40].
+    * [cite_start]Carregamento correto e completo dos dados no Databricks, no local e formato adequados (Delta Lake)[cite: 41].
+    * [cite_start]Definição e aplicação correta do schema dos dados para carregamento no Databricks[cite: 42].
+    * [cite_start]Considerações sobre otimização do pipeline (ex: performance, uso de recursos) - citar durante a apresentação[cite: 43].
+    * [cite_start]Tempo de execução razoável para o volume de dados proposto[cite: 44].
+    * [cite_start]Nível de complexidade apropriado para o problema e volume de dados[cite: 45].
+    * [cite_start]Considerações de escalabilidade futura do pipeline - citar durante a apresentação[cite: 46].
+    * [cite_start]Implementação de mecanismos básicos para identificação e tratamento de erros[cite: 47].
+    * [cite_start]Garantia de idempotência do pipeline[cite: 47].
+* **Infraestrutura, Configuração e Deploy do Pipeline:**
+    * [cite_start]Clareza na especificação dos recursos de infraestrutura utilizados (ex: clusters Databricks, VMs) - citar durante a apresentação[cite: 48].
+    * [cite_start]Utilização de conteinerização (ex: Docker)[cite: 49].
+    * [cite_start]Apresentação de um design claro da arquitetura da solução[cite: 49].
+    * [cite_start]Uso adequado de versionamento com Git (commits, uso de branches)[cite: 50].
+    * [cite_start]Gerenciamento seguro de configurações e informações sensíveis (ex: variáveis de ambiente), sem exposição no código[cite: 52].
+    * [cite_start]Documentação clara do processo para deploy do pipeline[cite: 53].
+* **Organização, Documentação e Qualidade do Código:**
+    * [cite_start]Legibilidade, clareza e boa estrutura do código[cite: 54].
+    * [cite_start]Aplicação de boas práticas de desenvolvimento[cite: 54].
+    * [cite_start]Presença e qualidade do arquivo README.md (descrição do projeto, instruções de configuração e execução, listagem de dependências)[cite: 55].
+    * [cite_start]Organização lógica e clara dos arquivos e pastas no repositório[cite: 56].
+* **Entrega, Apresentação e Comunicação:**
+    * [cite_start]Compartilhamento correto do repositório GitHub (privado, com acesso ao avaliador)[cite: 57].
+    * [cite_start]Clareza e objetividade na apresentação da solução, seus componentes e o fluxo de dados[cite: 58].
+    * [cite_start]Explicação clara da infraestrutura e das decisões técnicas[cite: 59].
+    * [cite_start]Capacidade de explicar conceitos técnicos de forma compreensível[cite: 59].
+    * [cite_start]Demonstração funcional do pipeline durante a apresentação (ao vivo)[cite: 60, 89].
+    * [cite_start]Habilidade em responder às perguntas dos avaliadores de forma precisa e demonstrando entendimento do projeto[cite: 61].
 
 ## 8. Contato
 
 Para quaisquer dúvidas, sugestões ou informações adicionais, por favor, sinta-se à vontade para entrar em contato.
 
-**Equipe:** [Alexandre R.Silva Filho]
-**Email:** [alexandre.filho@indicium.tech]
+**Equipe:** [Seu Nome ou Nomes dos Integrantes da Dupla]
+**Email:** [Seu Email ou Email da Equipe]
 ```
