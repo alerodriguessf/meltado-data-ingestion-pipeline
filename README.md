@@ -1,80 +1,78 @@
 
-# 🚀 Pipeline de Ingestão de Dados — Lighthouse Checkpoint 2
+# 🚀 Data Ingestion Pipeline — Lighthouse Checkpoint 2
 
-## 1. Visão Geral do Projeto
+## 1. Project Overview
 
-Este projeto foi desenvolvido como parte do desafio **Lighthouse Checkpoint 2** da Indicium, com o objetivo de implementar uma **pipeline de ingestão de dados confiável, modular e escalável**, conectando múltiplas fontes e carregando os dados em um ambiente analítico moderno: o **Databricks Lakehouse**.
+This project was developed as part of **Lighthouse Checkpoint 2** (Indicium) to implement a **reliable, modular, and scalable data ingestion pipeline**, connecting multiple sources and loading them into a modern analytics environment: the **Databricks Lakehouse**.
 
-A solução realiza a ingestão de dados a partir de:
+The pipeline ingests data from:
 
-* Um **banco de dados relacional** (MSSQL)
-* Uma **API REST**
+* A **relational database** (MSSQL)  
+* A **REST API**  
 
-Os dados extraídos são temporariamente armazenados no formato **Parquet**, e posteriormente convertidos manualmente para o formato **Delta Lake**, garantindo performance, integridade e governança.
+Extracted data is temporarily stored as **Parquet files**, and later manually converted to the **Delta Lake** format to ensure performance, integrity, and governance.
 
-A arquitetura foi construída com foco em:
+The architecture was designed with emphasis on:
 
-* Clareza, manutenibilidade e modularidade
-* Boas práticas de engenharia de dados
-* Segurança de credenciais
-* Portabilidade do ambiente com Docker
-
----
-
-## 2. Arquitetura da Solução
-
-A pipeline extrai os dados a partir do **Meltano**, uma ferramenta ELT open-source que permite controle granular das etapas de extração e carga. Todo o projeto é conteinerizado com **Docker**, assegurando reprodutibilidade do ambiente de desenvolvimento e execução.
-
-Após a extração, os dados são organizados em arquivos `.parquet` e transferidos para o **Databricks**, onde são convertidos em **tabelas Delta Lake**, com suporte a:
-
-* Transações ACID
-* Schema enforcement & evolution
-* Otimizações de leitura e escrita
-* Alta escalabilidade
-
-### 🔧 Componentes Técnicos
-
-| Componente           | Papel na Pipeline                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| `tap-mssql`          | Extrai dados do banco SQL Server utilizando autenticação por usuário/senha                            |
-| `tap-rest-api-msdk`  | Conecta-se à API REST utilizando autenticação básica (Basic Auth), acessando os endpoints disponíveis |
-| `target-parquet`     | Converte os dados extraídos em arquivos `.parquet` organizados por origem                             |
-| `Docker`             | Cria ambiente reprodutível com Meltano, Databricks CLI e dependências Python                          |
-| `Databricks CLI`     | Realiza o upload dos arquivos `.parquet` para o Databricks via terminal                               |
-| Notebooks auxiliares | Realizam a conversão dos arquivos `.parquet` em tabelas Delta, de forma controlada e modular          |
+* Clarity, maintainability, and modularity  
+* Data engineering best practices  
+* Secure credential management  
+* Environment portability with Docker  
 
 ---
 
-## 3. Requisitos e Pré-Requisitos
+## 2. Solution Architecture
 
-Para executar a pipeline localmente, são necessárias as seguintes ferramentas e acessos:
+Data ingestion is handled by **Meltano**, an open-source ELT tool that provides granular control over extraction and loading steps. The entire project runs inside **Docker**, ensuring a reproducible environment for both development and execution.
 
-### 🧰 Ferramentas
+After extraction, data is stored as `.parquet` files and then uploaded into **Databricks**, where it is converted into **Delta Lake tables** with support for:
 
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v4.x+)
-* [Git](https://git-scm.com/)
-* [Databricks CLI](https://docs.databricks.com/dev-tools/cli/index.html) (pré-instalado no container)
+* ACID transactions  
+* Schema enforcement & evolution  
+* Optimized reads and writes  
+* High scalability  
 
-### 🔐 Acessos Necessários
+### 🔧 Tech Components
 
-* URL e credenciais do banco **MSSQL**
-* URL e credenciais da **API REST**
-* URL do workspace **Databricks** e um **Token PAT** com permissões de escrita
+| Component            | Role in Pipeline                                                                 |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `tap-mssql`          | Extracts data from SQL Server using user/password authentication                  |
+| `tap-rest-api-msdk`  | Connects to REST API via Basic Auth, consuming available endpoints                |
+| `target-parquet`     | Writes extracted data into organized `.parquet` files by source                   |
+| `Docker`             | Provides a reproducible environment with Meltano, Databricks CLI, and dependencies |
+| `Databricks CLI`     | Uploads `.parquet` files into Databricks File System (DBFS)                       |
+| Auxiliary Notebooks  | Convert `.parquet` into Delta Lake tables in a modular and controlled way         |
 
 ---
 
-## 4. Configuração do Ambiente
+## 3. Requirements & Prerequisites
 
-### 4.1 Clonar o Repositório
+### 🧰 Tools
+
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v4.x+)  
+* [Git](https://git-scm.com/)  
+* [Databricks CLI](https://docs.databricks.com/dev-tools/cli/index.html) (pre-installed in container)  
+
+### 🔐 Required Access
+
+* MSSQL database URL and credentials  
+* REST API URL and credentials  
+* Databricks workspace URL + **PAT Token** with write permissions  
+
+---
+
+## 4. Environment Setup
+
+### 4.1 Clone Repository
 
 ```bash
 git clone https://github.com/alerodriguessf/lighthouse_desafio02_alexandrersf
 cd lighthouse_desafio02_alexandrersf
-```
+````
 
-### 4.2 Configurar Variáveis de Ambiente
+### 4.2 Configure Environment Variables
 
-Crie um arquivo `.env` com suas credenciais:
+Create a `.env` file with your credentials:
 
 ```env
 # MSSQL
@@ -94,91 +92,92 @@ DATABRICKS_HOST=https://your-databricks-instance.cloud.databricks.com
 DATABRICKS_TOKEN=your_pat_token
 ```
 
-> 🔐 **Importante**: Não versionar este arquivo com Git.
+> 🔐 **Important:** Do not commit this file to Git.
 
 ---
 
-## 5. Estrutura do Projeto
+## 5. Project Structure
 
 ```
 .
-├── extract/                            # Extração via Meltano
-├── load/                               # Carga via Meltano
-├── plugins/                            # Plugins Meltano
-├── scripts_aux/                        # Scripts auxiliares para discovery e Delta
+├── extract/                            # Extraction via Meltano
+├── load/                               # Load via Meltano
+├── plugins/                            # Meltano plugins
+├── scripts_aux/                        # Auxiliary notebooks (discovery & Delta conversion)
 │   ├── discovery_api_aw_checkpoint2.ipynb
 │   ├── delta conversion_api_checkpoint2_alexandrersf (1).ipynb
 │   └── delta conversion_sqlserver_checkpoint2_alexandrersf.ipynb
-├── Dockerfile                          # Build da imagem com Meltano + CLI Databricks
-├── entrypoint.sh                       # Script de orquestração do pipeline
-├── .env.save                           # Modelo de exemplo de variáveis de ambiente
+├── Dockerfile                          # Build image with Meltano + Databricks CLI
+├── entrypoint.sh                       # Orchestration script for pipeline
+├── .env.save                           # Example environment file
 ├── .gitignore
-├── meltano.yml                         # Configuração principal do projeto Meltano
-├── requirements.txt                    # Dependências Python
-└── README.md                           # Este arquivo
+├── meltano.yml                         # Meltano project configuration
+├── requirements.txt                    # Python dependencies
+└── README.md
 ```
 
 ---
 
-## 6. Execução da Pipeline
+## 6. Running the Pipeline
 
-### 6.1 Construir a Imagem Docker
+### 6.1 Build Docker Image
 
 ```bash
-docker build -t lighthouse-ingestion-pipeline .
+docker build -t lighthouse-ingestion-pipeline.
 ```
 
-### 6.2 Executar o Contêiner
+### 6.2 Run Container
 
 ```bash
 docker run --env-file .env lighthouse-ingestion-pipeline
 ```
 
-Este comando aciona o `entrypoint.sh`, que:
+This triggers `entrypoint.sh`, which:
 
-1. Executa a extração dos dados via Meltano:
+1. Runs data extraction with Meltano:
 
 ```bash
 meltano run tap-mssql target-parquet-sqlserver tap-rest-api-msdk target-parquet-api
 ```
 
-2. Realiza o upload dos arquivos `.parquet` para o Databricks:
+2. Uploads `.parquet` files to Databricks:
 
 ```bash
-databricks fs cp output/docker_elt/sqlserver/ dbfs:/mnt/<caminho>/sqlserver/ --recursive --overwrite
-databricks fs cp output/docker_elt/api/ dbfs:/mnt/<caminho>/api/ --recursive --overwrite
+databricks fs cp output/docker_elt/sqlserver/ dbfs:/mnt/<path>/sqlserver/ --recursive --overwrite
+databricks fs cp output/docker_elt/api/ dbfs:/mnt/<path>/api/ --recursive --overwrite
 ```
 
 ---
 
-## 7. Scripts Auxiliares (`scripts_aux/`)
+## 7. Auxiliary Scripts (`scripts_aux/`)
 
-Para facilitar testes, validações e modularizar a etapa final da ingestão, foram incluídos três notebooks:
+Three notebooks are included to support testing, validation, and modularization of ingestion steps:
 
-| Notebook                                                    | Função                                                           |
-| ----------------------------------------------------------- | ---------------------------------------------------------------- |
-| `discovery_api_aw_checkpoint2.ipynb`                        | Validação e visualização dos dados expostos pela API REST        |
-| `delta conversion_api_checkpoint2_alexandrersf (1).ipynb`   | Criação de tabelas Delta a partir dos arquivos `.parquet` da API |
-| `delta conversion_sqlserver_checkpoint2_alexandrersf.ipynb` | Conversão dos dados SQL Server para Delta Lake                   |
+| Notebook                                                    | Purpose                                                     |
+| ----------------------------------------------------------- | ----------------------------------------------------------- |
+| `discovery_api_aw_checkpoint2.ipynb`                        | Validation and inspection of REST API data                  |
+| `delta conversion_api_checkpoint2_alexandrersf (1).ipynb`   | Creates Delta tables from API `.parquet` files              |
+| `delta conversion_sqlserver_checkpoint2_alexandrersf.ipynb` | Converts SQL Server `.parquet` files into Delta Lake tables |
 
-Esses notebooks foram essenciais para garantir:
+These notebooks ensure:
 
-* Flexibilidade diante da instabilidade da API
-* Modularização das etapas de ingestão
-* Controle e auditabilidade do processo
+* Flexibility when dealing with API instability
+* Modularization of ingestion steps
+* Better auditability and process control
 
-As tabelas Delta criadas seguem o padrão de nomenclatura:
+Naming convention for Delta tables:
 
 ```
-raw_api_<tabela>_db
-raw_sqlserver_<tabela>_db
+raw_api_<table>_db
+raw_sqlserver_<table>_db
 ```
 
 ---
 
-## 8. Contato
+## 8. Contact
 
-**Autor:** Alexandre R.Silva Filho
+**Author:** Alexandre R. Silva Filho
 📧 [alexandre.filho@indicium.tech](mailto:alexandre.filho@indicium.tech)
 🔗 [LinkedIn](https://www.linkedin.com/in/alerodriguessf/)
 
+```
