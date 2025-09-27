@@ -177,7 +177,5 @@ raw_sqlserver_<table>_db
 ## 8. Contact
 
 **Author:** Alexandre R. Silva Filho
-📧 [alexandre.filho@indicium.tech](mailto:alexandre.filho@indicium.tech)
+📧 [alerodriguessf@gmail.com](mailto:alerodriguessf@gmail.com)
 🔗 [LinkedIn](https://www.linkedin.com/in/alerodriguessf/)
-
-```
