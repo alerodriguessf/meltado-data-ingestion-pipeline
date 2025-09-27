@@ -1,9 +1,9 @@
 
-# 🚀 Data Ingestion Pipeline — Lighthouse Checkpoint 2
+# 🚀 Data Ingestion Pipeline
 
 ## 1. Project Overview
 
-This project was developed as part of **Lighthouse Checkpoint 2** (Indicium) to implement a **reliable, modular, and scalable data ingestion pipeline**, connecting multiple sources and loading them into a modern analytics environment: the **Databricks Lakehouse**.
+This project implements a **reliable, modular, and scalable data ingestion pipeline**, connecting multiple sources and loading them into a modern analytics environment: the **Databricks Lakehouse**.
 
 The pipeline ingests data from:
 
