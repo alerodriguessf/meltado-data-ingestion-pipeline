@@ -178,4 +178,4 @@ raw_sqlserver_<table>_db
 
 **Author:** Alexandre R. Silva Filho
 📧 [alerodriguessf@gmail.com](mailto:alerodriguessf@gmail.com)
-🔗 [LinkedIn](https://www.linkedin.com/in/alerodriguessf/)
+🔗 [LinkedIn](https://www.linkedin.com/in/alexandrersf/)
